@@ -1,0 +1,13 @@
+const aboutContentFallback = {
+  heading: 'Hello!',
+  intro: 'I build clear, useful digital experiences where thoughtful design and practical development work together.',
+  paragraphs: [
+    'I’m Reiven, focused on building digital products and web experiences that feel polished without losing their purpose. I bring design thinking into the build, shaping interfaces that are clear, useful, and considered from the first interaction.',
+    'I like working through problems carefully, then turning ideas into clean, maintainable products. Usability, performance, small details, and quality all matter because they are what make an interface feel reliable in real use.',
+    'I’m collaborative, curious, and comfortable learning what a project needs. The goal is always the same: make something refined and intentional that genuinely helps the people using it.',
+  ],
+  socialLinks: { instagram: 'https://www.instagram.com/reiven.dev' },
+  badgeMedia: null,
+}
+
+export default aboutContentFallback

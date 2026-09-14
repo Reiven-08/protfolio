@@ -1,0 +1,36 @@
+{
+  "greeting": "Hi, I'm",
+  "name": "Reiven",
+  "roles": [
+    "Frontend Developer",
+    "Backend Developer"
+  ],
+  "resumeUrl": "#top",
+  "socialLinks": [
+    {
+      "platform": "instagram",
+      "enabled": true,
+      "url": "https://www.instagram.com/reiven.dev"
+    },
+    {
+      "platform": "github",
+      "enabled": true,
+      "url": "#top"
+    },
+    {
+      "platform": "facebook",
+      "enabled": true,
+      "url": "https://www.facebook.com/share/1GVN5p176x/"
+    },
+    {
+      "platform": "whatsapp",
+      "enabled": true,
+      "url": "https://wa.me/8801850123046"
+    }
+  ],
+  "media": {
+    "type": "video",
+    "src": "/uploads/1789311620382-4a177be4f796bb98b158.mp4",
+    "alt": "Home hero media"
+  }
+}

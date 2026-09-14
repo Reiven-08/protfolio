@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 820" fill="none">
+  <defs>
+    <linearGradient id="hood" x1="118" y1="144" x2="482" y2="514" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#0D0D0C"/>
+      <stop offset=".46" stop-color="#494943"/>
+      <stop offset="1" stop-color="#11110F"/>
+    </linearGradient>
+    <linearGradient id="skin" x1="220" y1="245" x2="376" y2="405" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#191917"/>
+      <stop offset=".5" stop-color="#8C887D"/>
+      <stop offset="1" stop-color="#252522"/>
+    </linearGradient>
+    <linearGradient id="coat" x1="90" y1="448" x2="508" y2="790" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#10100F"/>
+      <stop offset=".48" stop-color="#363632"/>
+      <stop offset="1" stop-color="#11110F"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="0" cy="0" r="1" gradientTransform="translate(306 330) rotate(90) scale(220 186)" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#D9D4C8" stop-opacity=".28"/>
+      <stop offset="1" stop-color="#D9D4C8" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="shadow" x="45" y="82" width="510" height="756" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feDropShadow dx="0" dy="16" stdDeviation="14" flood-color="#1A1A19" flood-opacity=".22"/>
+    </filter>
+  </defs>
+  <g filter="url(#shadow)">
+    <path d="M118 432C123 257 202 124 300 124C398 124 477 257 482 432L441 527H159L118 432Z" fill="url(#hood)"/>
+    <path d="M190 347C194 254 239 190 300 190C361 190 406 254 410 347C404 427 365 471 300 471C235 471 196 427 190 347Z" fill="#0B0B0A"/>
+    <path d="M225 328C229 266 260 227 300 227C340 227 371 266 375 328C370 397 344 433 300 433C256 433 230 397 225 328Z" fill="url(#skin)"/>
+    <ellipse cx="300" cy="324" rx="154" ry="178" fill="url(#glow)"/>
+    <path d="M80 800C90 598 170 475 300 475C430 475 510 598 520 800H80Z" fill="url(#coat)"/>
+    <path d="M184 513C212 486 246 474 300 474C354 474 388 486 416 513L389 608H211L184 513Z" fill="#161614"/>
+    <path d="M251 476H349L379 800H221L251 476Z" fill="#191917" fill-opacity=".52"/>
+  </g>
+</svg>

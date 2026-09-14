@@ -1,0 +1,47 @@
+{
+  "projects": [
+    {
+      "id": "counterpart",
+      "title": "Boi Station",
+      "description": "Digital direction · 2024",
+      "websiteUrl": "",
+      "coverImage": {
+        "id": "899330ece64f0c38c694",
+        "src": "/uploads/1789366599592-87f6204be9aed89d5b22.webp",
+        "alt": "Boi Station screenshot"
+      },
+      "screenshots": [
+        {
+          "id": "e74e5deb3e8aafb737ce",
+          "src": "/uploads/1789329326348-ccafb10dbd1b70a965b8.webp",
+          "alt": "Boi Station screenshot"
+        }
+      ],
+      "number": "01",
+      "color": "#b7cae0",
+      "art": "blue"
+    },
+    {
+      "id": "the-sunroom",
+      "title": "The Sunroom",
+      "description": "Identity & web · 2024",
+      "websiteUrl": "",
+      "coverImage": null,
+      "screenshots": [],
+      "number": "02",
+      "color": "#d7d46b",
+      "art": "lime"
+    },
+    {
+      "id": "common-ground",
+      "title": "Common Ground",
+      "description": "Brand system · 2023",
+      "websiteUrl": "",
+      "coverImage": null,
+      "screenshots": [],
+      "number": "03",
+      "color": "#e7aa8c",
+      "art": "peach"
+    }
+  ]
+}
