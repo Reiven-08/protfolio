@@ -1,25 +1,28 @@
 import { createHmac, randomBytes, timingSafeEqual } from 'node:crypto'
 import { mkdir, unlink } from 'node:fs/promises'
-import { extname, dirname, resolve } from 'node:path'
-import { fileURLToPath } from 'node:url'
+import { extname } from 'node:path'
 import { Router } from 'express'
 import multer from 'multer'
 import { readAboutContent, writeAboutContent } from '../content/about.js'
 import { readHomeContent, writeHomeContent } from '../content/home.js'
 import { readProjectsContent, writeProjectsContent } from '../content/projects.js'
+import { getUploadsDirectory } from '../storage.js'
 
 const router = Router()
 const SESSION_COOKIE = 'reiven_edit_session'
 const SESSION_DURATION_MS = 1000 * 60 * 60 * 8
 const activeSessions = new Map()
-const uploadsDirectory = resolve(dirname(fileURLToPath(import.meta.url)), '../../public/uploads')
 const allowedMedia = {
   image: new Set(['.jpg', '.jpeg', '.png', '.webp']),
   video: new Set(['.mp4', '.webm']),
 }
 const uploadStorage = multer.diskStorage({
   destination: async (_request, _file, callback) => {
-    try { await mkdir(uploadsDirectory, { recursive: true }); callback(null, uploadsDirectory) } catch (error) { callback(error) }
+    try {
+      const uploadsDirectory = getUploadsDirectory()
+      await mkdir(uploadsDirectory, { recursive: true })
+      callback(null, uploadsDirectory)
+    } catch (error) { callback(error) }
   },
   filename: (_request, file, callback) => callback(null, `${Date.now()}-${randomBytes(10).toString('hex')}${extname(file.originalname).toLowerCase()}`),
 })

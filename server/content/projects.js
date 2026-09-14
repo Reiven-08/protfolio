@@ -1,10 +1,7 @@
 import { rename, readFile, writeFile } from 'node:fs/promises'
 import { randomBytes } from 'node:crypto'
-import { dirname, resolve } from 'node:path'
-import { fileURLToPath } from 'node:url'
+import { ensureEditableStorage, getContentPath } from '../storage.js'
 
-const here = dirname(fileURLToPath(import.meta.url))
-const PROJECTS_CONTENT_PATH = resolve(here, '../../content/projects.json')
 const ART_TYPES = new Set(['blue', 'lime', 'peach'])
 
 function cleanText(value, label, maximumLength) {
@@ -71,14 +68,17 @@ export function validateProjectsContent(value) {
 }
 
 export async function readProjectsContent() {
-  return validateProjectsContent(JSON.parse(await readFile(PROJECTS_CONTENT_PATH, 'utf8')))
+  await ensureEditableStorage()
+  return validateProjectsContent(JSON.parse(await readFile(getContentPath('projects.json'), 'utf8')))
 }
 
 export async function writeProjectsContent(value) {
   const content = validateProjectsContent(value)
-  const temporaryPath = `${PROJECTS_CONTENT_PATH}.${randomBytes(8).toString('hex')}.tmp`
+  await ensureEditableStorage()
+  const contentPath = getContentPath('projects.json')
+  const temporaryPath = `${contentPath}.${randomBytes(8).toString('hex')}.tmp`
   await writeFile(temporaryPath, `${JSON.stringify(content, null, 2)}\n`, 'utf8')
-  await rename(temporaryPath, PROJECTS_CONTENT_PATH)
+  await rename(temporaryPath, contentPath)
   return content
 }
 

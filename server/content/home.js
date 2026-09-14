@@ -1,10 +1,7 @@
 import { rename, readFile, writeFile } from 'node:fs/promises'
 import { randomBytes } from 'node:crypto'
-import { dirname, resolve } from 'node:path'
-import { fileURLToPath } from 'node:url'
+import { ensureEditableStorage, getContentPath } from '../storage.js'
 
-const here = dirname(fileURLToPath(import.meta.url))
-const HOME_CONTENT_PATH = resolve(here, '../../content/home.json')
 const SUPPORTED_SOCIAL_PLATFORMS = new Set(['instagram', 'github', 'facebook', 'whatsapp'])
 const MEDIA_TYPES = new Set(['image', 'video'])
 
@@ -58,14 +55,17 @@ export function validateHomeContent(value) {
 }
 
 export async function readHomeContent() {
-  return validateHomeContent(JSON.parse(await readFile(HOME_CONTENT_PATH, 'utf8')))
+  await ensureEditableStorage()
+  return validateHomeContent(JSON.parse(await readFile(getContentPath('home.json'), 'utf8')))
 }
 
 export async function writeHomeContent(value) {
   const content = validateHomeContent(value)
-  const temporaryPath = `${HOME_CONTENT_PATH}.${randomBytes(8).toString('hex')}.tmp`
+  await ensureEditableStorage()
+  const contentPath = getContentPath('home.json')
+  const temporaryPath = `${contentPath}.${randomBytes(8).toString('hex')}.tmp`
   await writeFile(temporaryPath, `${JSON.stringify(content, null, 2)}\n`, 'utf8')
-  await rename(temporaryPath, HOME_CONTENT_PATH)
+  await rename(temporaryPath, contentPath)
   return content
 }
 

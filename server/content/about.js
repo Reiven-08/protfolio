@@ -1,10 +1,7 @@
 import { rename, readFile, writeFile } from 'node:fs/promises'
 import { randomBytes } from 'node:crypto'
-import { dirname, resolve } from 'node:path'
-import { fileURLToPath } from 'node:url'
+import { ensureEditableStorage, getContentPath } from '../storage.js'
 
-const here = dirname(fileURLToPath(import.meta.url))
-const ABOUT_CONTENT_PATH = resolve(here, '../../content/about.json')
 const MEDIA_TYPES = new Set(['image', 'video'])
 
 function cleanText(value, label, maximumLength) {
@@ -41,14 +38,17 @@ export function validateAboutContent(value) {
 }
 
 export async function readAboutContent() {
-  return validateAboutContent(JSON.parse(await readFile(ABOUT_CONTENT_PATH, 'utf8')))
+  await ensureEditableStorage()
+  return validateAboutContent(JSON.parse(await readFile(getContentPath('about.json'), 'utf8')))
 }
 
 export async function writeAboutContent(value) {
   const content = validateAboutContent(value)
-  const temporaryPath = `${ABOUT_CONTENT_PATH}.${randomBytes(8).toString('hex')}.tmp`
+  await ensureEditableStorage()
+  const contentPath = getContentPath('about.json')
+  const temporaryPath = `${contentPath}.${randomBytes(8).toString('hex')}.tmp`
   await writeFile(temporaryPath, `${JSON.stringify(content, null, 2)}\n`, 'utf8')
-  await rename(temporaryPath, ABOUT_CONTENT_PATH)
+  await rename(temporaryPath, contentPath)
   return content
 }
 
