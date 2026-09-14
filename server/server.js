@@ -4,7 +4,8 @@ import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import contentRouter from './routes/content.js'
 import editRouter from './routes/edit.js'
-import { ensureEditableStorage, getUploadsDirectory } from './storage.js'
+import { ensureEditableStorage, getUploadsDirectory, isSupabaseStorageEnabled } from './storage.js'
+import { getSupabaseMediaUrl } from './supabase.js'
 
 dotenv.config({ quiet: true })
 await ensureEditableStorage()
@@ -16,7 +17,19 @@ const serveProductionBuild = process.env.NODE_ENV === 'production'
 
 app.disable('x-powered-by')
 app.use(express.json({ limit: '25kb' }))
-app.use('/uploads', express.static(getUploadsDirectory()))
+if (isSupabaseStorageEnabled()) {
+  // Keep the public /uploads/<filename> contract while letting Supabase Storage
+  // deliver media (including native video range requests) from its public URL.
+  app.use('/uploads', (request, response, next) => {
+    if (request.method !== 'GET' && request.method !== 'HEAD') return next()
+    const mediaUrl = getSupabaseMediaUrl(request.path)
+    if (!mediaUrl) return response.status(404).end()
+    response.setHeader('Cache-Control', 'public, max-age=3600')
+    return response.redirect(302, mediaUrl)
+  })
+} else {
+  app.use('/uploads', express.static(getUploadsDirectory()))
+}
 app.use('/api/content', contentRouter)
 app.use('/api/edit', editRouter)
 

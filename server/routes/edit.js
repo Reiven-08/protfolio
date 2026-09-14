@@ -6,7 +6,8 @@ import multer from 'multer'
 import { readAboutContent, writeAboutContent } from '../content/about.js'
 import { readHomeContent, writeHomeContent } from '../content/home.js'
 import { readProjectsContent, writeProjectsContent } from '../content/projects.js'
-import { getUploadsDirectory } from '../storage.js'
+import { getUploadsDirectory, isSupabaseStorageEnabled } from '../storage.js'
+import { removeSupabaseMedia, uploadSupabaseMedia } from '../supabase.js'
 
 const router = Router()
 const SESSION_COOKIE = 'reiven_edit_session'
@@ -16,25 +17,47 @@ const allowedMedia = {
   image: new Set(['.jpg', '.jpeg', '.png', '.webp']),
   video: new Set(['.mp4', '.webm']),
 }
-const uploadStorage = multer.diskStorage({
-  destination: async (_request, _file, callback) => {
-    try {
-      const uploadsDirectory = getUploadsDirectory()
-      await mkdir(uploadsDirectory, { recursive: true })
-      callback(null, uploadsDirectory)
-    } catch (error) { callback(error) }
-  },
-  filename: (_request, file, callback) => callback(null, `${Date.now()}-${randomBytes(10).toString('hex')}${extname(file.originalname).toLowerCase()}`),
-})
-const mediaUpload = multer({
-  storage: uploadStorage,
-  limits: { fileSize: 25 * 1024 * 1024, files: 1 },
-  fileFilter: (_request, file, callback) => {
-    const extension = extname(file.originalname).toLowerCase()
-    const allowed = allowedMedia.image.has(extension) || allowedMedia.video.has(extension)
-    callback(allowed ? null : new Error('Use a JPG, JPEG, PNG, WebP, MP4, or WebM file.'), allowed)
-  },
-})
+function createMediaUpload() {
+  const storage = isSupabaseStorageEnabled()
+    ? multer.memoryStorage()
+    : multer.diskStorage({
+      destination: async (_request, _file, callback) => {
+        try {
+          const uploadsDirectory = getUploadsDirectory()
+          await mkdir(uploadsDirectory, { recursive: true })
+          callback(null, uploadsDirectory)
+        } catch (error) { callback(error) }
+      },
+      filename: (_request, file, callback) => callback(null, `${Date.now()}-${randomBytes(10).toString('hex')}${extname(file.originalname).toLowerCase()}`),
+    })
+
+  return multer({
+    storage,
+    limits: { fileSize: 25 * 1024 * 1024, files: 1 },
+    fileFilter: (_request, file, callback) => {
+      const extension = extname(file.originalname).toLowerCase()
+      const allowed = allowedMedia.image.has(extension) || allowedMedia.video.has(extension)
+      callback(allowed ? null : new Error('Use a JPG, JPEG, PNG, WebP, MP4, or WebM file.'), allowed)
+    },
+  })
+}
+
+function uploadSingle(request, response, handler) {
+  return createMediaUpload().single('media')(request, response, handler)
+}
+
+async function persistUploadedMedia(file) {
+  if (!isSupabaseStorageEnabled()) return file.filename
+  const filename = `${Date.now()}-${randomBytes(10).toString('hex')}${extname(file.originalname).toLowerCase()}`
+  await uploadSupabaseMedia(filename, file)
+  return filename
+}
+
+async function discardUploadedMedia(file, filename) {
+  if (!filename) return
+  if (isSupabaseStorageEnabled()) return removeSupabaseMedia(filename)
+  if (file?.path) await unlink(file.path).catch(() => {})
+}
 
 function adminConfig() {
   const username = process.env.EDIT_ADMIN_USERNAME
@@ -168,17 +191,20 @@ router.put('/home', requireAdmin, async (request, response) => {
 })
 
 router.post('/home/media', requireAdmin, (request, response) => {
-  mediaUpload.single('media')(request, response, async (uploadError) => {
+  uploadSingle(request, response, async (uploadError) => {
     if (uploadError) return response.status(400).json({ error: uploadError.message || 'Media upload failed.' })
     if (!request.file) return response.status(400).json({ error: 'Choose a media file to upload.' })
 
     const extension = extname(request.file.originalname).toLowerCase()
     const type = allowedMedia.video.has(extension) ? 'video' : 'image'
+    let filename
     try {
-      const media = { type, src: `/uploads/${request.file.filename}`, alt: 'Home hero media' }
+      filename = await persistUploadedMedia(request.file)
+      const media = { type, src: `/uploads/${filename}`, alt: 'Home hero media' }
       const content = await writeHomeContent({ ...await readHomeContent(), media })
       return response.status(201).json({ ok: true, media, content })
     } catch {
+      await discardUploadedMedia(request.file, filename)
       return response.status(500).json({ error: 'Media uploaded, but Home content could not be updated.' })
     }
   })
@@ -201,17 +227,20 @@ router.put('/about', requireAdmin, async (request, response) => {
 })
 
 router.post('/about/media', requireAdmin, (request, response) => {
-  mediaUpload.single('media')(request, response, async (uploadError) => {
+  uploadSingle(request, response, async (uploadError) => {
     if (uploadError) return response.status(400).json({ error: uploadError.message || 'Media upload failed.' })
     if (!request.file) return response.status(400).json({ error: 'Choose a media file to upload.' })
 
     const extension = extname(request.file.originalname).toLowerCase()
     const type = allowedMedia.video.has(extension) ? 'video' : 'image'
+    let filename
     try {
-      const badgeMedia = { type, src: `/uploads/${request.file.filename}`, alt: 'About badge media' }
+      filename = await persistUploadedMedia(request.file)
+      const badgeMedia = { type, src: `/uploads/${filename}`, alt: 'About badge media' }
       const content = await writeAboutContent({ ...await readAboutContent(), badgeMedia })
       return response.status(201).json({ ok: true, media: badgeMedia, content })
     } catch {
+      await discardUploadedMedia(request.file, filename)
       return response.status(500).json({ error: 'Media uploaded, but About content could not be updated.' })
     }
   })
@@ -234,25 +263,27 @@ router.put('/projects', requireAdmin, async (request, response) => {
 })
 
 router.post('/projects/:projectId/images', requireAdmin, (request, response) => {
-  mediaUpload.single('media')(request, response, async (uploadError) => {
+  uploadSingle(request, response, async (uploadError) => {
     if (uploadError) return response.status(400).json({ error: uploadError.message || 'Image upload failed.' })
     if (!request.file) return response.status(400).json({ error: 'Choose an image to upload.' })
 
     const extension = extname(request.file.originalname).toLowerCase()
     if (!allowedMedia.image.has(extension)) {
-      await unlink(request.file.path).catch(() => {})
+      await discardUploadedMedia(request.file, request.file.filename)
       return response.status(400).json({ error: 'Use a JPG, JPEG, PNG, or WebP image.' })
     }
 
+    let filename
     try {
       const content = await readProjectsContent()
       const projectIndex = content.projects.findIndex((project) => project.id === request.params.projectId)
       if (projectIndex < 0) {
-        await unlink(request.file.path).catch(() => {})
+        await discardUploadedMedia(request.file, request.file.filename)
         return response.status(404).json({ error: 'Project not found.' })
       }
 
-      const image = { id: randomBytes(10).toString('hex'), src: `/uploads/${request.file.filename}`, alt: `${content.projects[projectIndex].title} screenshot` }
+      filename = await persistUploadedMedia(request.file)
+      const image = { id: randomBytes(10).toString('hex'), src: `/uploads/${filename}`, alt: `${content.projects[projectIndex].title} screenshot` }
       const projects = [...content.projects]
       const project = { ...projects[projectIndex] }
       project.coverImage = image
@@ -260,6 +291,7 @@ router.post('/projects/:projectId/images', requireAdmin, (request, response) => 
       const savedContent = await writeProjectsContent({ projects })
       return response.status(201).json({ ok: true, image, content: savedContent })
     } catch {
+      await discardUploadedMedia(request.file, filename)
       return response.status(500).json({ error: 'Image uploaded, but Project content could not be updated.' })
     }
   })

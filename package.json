@@ -9,9 +9,11 @@
     "preview": "vite preview",
     "start": "node server/server.js",
     "server": "node server/server.js",
-    "dev:server": "node --watch server/server.js"
+    "dev:server": "node --watch server/server.js",
+    "migrate:supabase": "node scripts/migrate-to-supabase.js"
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.116.0",
     "@tailwindcss/vite": "latest",
     "@vitejs/plugin-react": "latest",
     "dotenv": "^17.4.2",

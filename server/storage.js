@@ -8,6 +8,10 @@ const seedContentDirectory = resolve(projectRoot, 'content')
 const seedUploadsDirectory = resolve(projectRoot, 'public/uploads')
 const contentFiles = ['home.json', 'about.json', 'projects.json']
 
+export function isSupabaseStorageEnabled() {
+  return process.env.PORTFOLIO_STORAGE_BACKEND?.trim().toLowerCase() === 'supabase'
+}
+
 function configuredStorageRoot() {
   const configured = process.env.PORTFOLIO_STORAGE_DIR?.trim()
   return configured ? resolve(configured) : null
@@ -38,6 +42,7 @@ async function copyIfMissing(source, destination) {
 // A configured storage directory starts from the repository's current editable
 // content, but never overwrites data already present on the persistent disk.
 export async function ensureEditableStorage() {
+  if (isSupabaseStorageEnabled()) return
   if (!configuredStorageRoot()) return
 
   const contentDirectory = getContentDirectory()

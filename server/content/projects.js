@@ -1,6 +1,7 @@
 import { rename, readFile, writeFile } from 'node:fs/promises'
 import { randomBytes } from 'node:crypto'
-import { ensureEditableStorage, getContentPath } from '../storage.js'
+import { ensureEditableStorage, getContentPath, isSupabaseStorageEnabled } from '../storage.js'
+import { readSupabaseContent, writeSupabaseContent } from '../supabase.js'
 
 const ART_TYPES = new Set(['blue', 'lime', 'peach'])
 
@@ -68,12 +69,14 @@ export function validateProjectsContent(value) {
 }
 
 export async function readProjectsContent() {
+  if (isSupabaseStorageEnabled()) return validateProjectsContent(await readSupabaseContent('projects'))
   await ensureEditableStorage()
   return validateProjectsContent(JSON.parse(await readFile(getContentPath('projects.json'), 'utf8')))
 }
 
 export async function writeProjectsContent(value) {
   const content = validateProjectsContent(value)
+  if (isSupabaseStorageEnabled()) return validateProjectsContent(await writeSupabaseContent('projects', content))
   await ensureEditableStorage()
   const contentPath = getContentPath('projects.json')
   const temporaryPath = `${contentPath}.${randomBytes(8).toString('hex')}.tmp`

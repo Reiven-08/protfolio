@@ -1,6 +1,7 @@
 import { rename, readFile, writeFile } from 'node:fs/promises'
 import { randomBytes } from 'node:crypto'
-import { ensureEditableStorage, getContentPath } from '../storage.js'
+import { ensureEditableStorage, getContentPath, isSupabaseStorageEnabled } from '../storage.js'
+import { readSupabaseContent, writeSupabaseContent } from '../supabase.js'
 
 const SUPPORTED_SOCIAL_PLATFORMS = new Set(['instagram', 'github', 'facebook', 'whatsapp'])
 const MEDIA_TYPES = new Set(['image', 'video'])
@@ -55,12 +56,14 @@ export function validateHomeContent(value) {
 }
 
 export async function readHomeContent() {
+  if (isSupabaseStorageEnabled()) return validateHomeContent(await readSupabaseContent('home'))
   await ensureEditableStorage()
   return validateHomeContent(JSON.parse(await readFile(getContentPath('home.json'), 'utf8')))
 }
 
 export async function writeHomeContent(value) {
   const content = validateHomeContent(value)
+  if (isSupabaseStorageEnabled()) return validateHomeContent(await writeSupabaseContent('home', content))
   await ensureEditableStorage()
   const contentPath = getContentPath('home.json')
   const temporaryPath = `${contentPath}.${randomBytes(8).toString('hex')}.tmp`
