@@ -137,6 +137,73 @@ function VideoWithSound({ className, src, alt, controlClass, label }) {
   </>
 }
 
+function HomeVideoWithBezelControls({ className, src, alt }) {
+  const videoRef = useRef(null)
+  const visibleRef = useRef(false)
+  const endedRef = useRef(false)
+  const [muted, setMuted] = useState(true)
+
+  useEffect(() => {
+    const video = videoRef.current
+    if (!video) return undefined
+
+    video.muted = true
+    setMuted(true)
+    endedRef.current = false
+    const playIfEligible = () => {
+      if (!visibleRef.current || endedRef.current) return
+      const playback = video.play()
+      if (playback?.catch) playback.catch(() => {})
+    }
+    const observer = new IntersectionObserver(([entry]) => {
+      visibleRef.current = entry.isIntersecting
+      if (entry.isIntersecting) playIfEligible()
+      else video.pause()
+    }, { threshold: 0.5 })
+    const handleEnded = () => {
+      endedRef.current = true
+      video.pause()
+    }
+
+    observer.observe(video)
+    video.addEventListener('ended', handleEnded)
+    return () => {
+      observer.disconnect()
+      video.removeEventListener('ended', handleEnded)
+    }
+  }, [src])
+
+  const playIfVisible = () => {
+    const video = videoRef.current
+    if (!video || !visibleRef.current) return
+    const playback = video.play()
+    if (playback?.catch) playback.catch(() => {})
+  }
+  const toggleSound = () => {
+    const video = videoRef.current
+    if (!video) return
+    video.muted = !video.muted
+    setMuted(video.muted)
+    playIfVisible()
+  }
+  const replay = () => {
+    const video = videoRef.current
+    if (!video) return
+    endedRef.current = false
+    video.currentTime = 0
+    playIfVisible()
+  }
+
+  return <>
+    <div className="monitor-screen"><video ref={videoRef} className={className} src={src} muted={muted} playsInline aria-label={alt} /></div>
+    <div className="monitor-controls monitor-controls-interactive">
+      <span className="monitor-indicators" aria-hidden="true"><i /><i /><i /></span>
+      <button type="button" className="monitor-replay-toggle" onClick={replay} aria-label="Replay Home video" title="Replay Home video"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M15.7 8.1A6.1 6.1 0 1 0 16 11" fill="none" stroke="currentColor" strokeWidth="1.45" strokeLinecap="round" /><path d="M15.8 3.8v4.5h-4.5" fill="none" stroke="currentColor" strokeWidth="1.45" strokeLinecap="round" strokeLinejoin="round" /></svg></button>
+      <button type="button" className="monitor-sound-toggle" onClick={toggleSound} aria-label={`${muted ? 'Unmute' : 'Mute'} Home video`} title={`${muted ? 'Unmute' : 'Mute'} Home video`}><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3.3 8.1h3.2l3.8-3v9.8l-3.8-3H3.3z" fill="none" stroke="currentColor" strokeWidth="1.45" strokeLinejoin="round" />{muted ? <path d="m13.2 8.1 3.5 3.8m0-3.8-3.5 3.8" fill="none" stroke="currentColor" strokeWidth="1.45" strokeLinecap="round" /> : <path d="M13.1 7.4c.8.65.8 4.55 0 5.2m2-7c1.8 1.5 1.8 7.3 0 8.8" fill="none" stroke="currentColor" strokeWidth="1.45" strokeLinecap="round" />}</svg></button>
+    </div>
+  </>
+}
+
 function Hero({ content }) {
   const reduced = useReducedMotion()
   const socialIcons = { instagram: InstagramIcon, github: GitHubIcon, facebook: FacebookIcon, whatsapp: WhatsAppIcon }
@@ -162,12 +229,9 @@ function Hero({ content }) {
     <motion.div className="home-monitor-wrap" initial={{ opacity: 0, scale: .96, y: reduced ? 0 : 30 }} animate={{ opacity: 1, scale: 1, y: 0 }} transition={{ delay: .14, duration: .9, ease: [0.22, 1, .36, 1] }}>
       <div className="home-monitor">
         <span className="monitor-brand">REIVEN</span>
-        <div className="monitor-screen">
-          {content.media && (content.media.type === 'video'
-            ? <VideoWithSound className={content.media.src === '/reiven-hooded-figure.svg' ? 'home-figure' : 'home-screen-media'} src={content.media.src} alt={content.media.alt} controlClass="screen-sound-toggle" label="Home video" />
-            : <img className={content.media.src === '/reiven-hooded-figure.svg' ? 'home-figure' : 'home-screen-media'} src={content.media.src} alt={content.media.alt} />)}
-        </div>
-        <span className="monitor-controls" aria-hidden="true"><i /><i /><i /></span>
+        {content.media?.type === 'video'
+          ? <HomeVideoWithBezelControls className={content.media.src === '/reiven-hooded-figure.svg' ? 'home-figure' : 'home-screen-media'} src={content.media.src} alt={content.media.alt} />
+          : <><div className="monitor-screen">{content.media && <img className={content.media.src === '/reiven-hooded-figure.svg' ? 'home-figure' : 'home-screen-media'} src={content.media.src} alt={content.media.alt} />}</div><span className="monitor-controls" aria-hidden="true"><i /><i /><i /></span></>}
       </div>
       <div className="monitor-feet" aria-hidden="true"><i /><i /></div>
     </motion.div>

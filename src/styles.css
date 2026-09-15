@@ -34,6 +34,12 @@
 .monitor-controls{display:flex;justify-content:center;align-items:center;gap:.36rem;height:clamp(.7rem,1.15vw,1rem);margin-top:clamp(.38rem,.65vw,.62rem)}
 .monitor-controls i{display:block;width:clamp(.14rem,.22vw,.22rem);height:clamp(.14rem,.22vw,.22rem);border-radius:50%;background:rgba(235,233,222,.23)}
 .monitor-controls i:nth-child(2){width:clamp(.34rem,.56vw,.54rem);border-radius:100px;background:#c79b36}
+.monitor-controls-interactive{position:relative}
+.monitor-indicators{display:flex;align-items:center;gap:.36rem}
+.monitor-indicators i:nth-child(2){width:clamp(.34rem,.56vw,.54rem);border-radius:100px;background:#c79b36}
+.monitor-replay-toggle,.monitor-sound-toggle{position:absolute;top:50%;display:grid;place-items:center;width:clamp(.95rem,1.45vw,1.25rem);height:clamp(.95rem,1.45vw,1.25rem);padding:0;border:0;border-radius:50%;background:transparent;color:rgba(244,242,237,.58);transform:translateY(-50%);cursor:pointer;transition:color .2s var(--ease),background .2s var(--ease)}
+.monitor-sound-toggle{right:clamp(.08rem,.2vw,.18rem)}.monitor-replay-toggle{right:clamp(1.12rem,1.75vw,1.5rem)}
+.monitor-replay-toggle:hover,.monitor-sound-toggle:hover,.monitor-replay-toggle:focus-visible,.monitor-sound-toggle:focus-visible{color:#f4f2ed;background:rgba(244,242,237,.12);outline:0}.monitor-replay-toggle svg,.monitor-sound-toggle svg{width:72%;height:72%}
 .monitor-feet{padding:0 15%;height:clamp(1.25rem,2.3vw,2rem)}
 .monitor-feet i{width:17%;background:#17181a;box-shadow:0 .4rem .45rem rgba(20,20,19,.1)}
 
@@ -64,10 +70,7 @@
 .project-stack-card:not(.is-active) .project-name{visibility:hidden;opacity:0}
 .project-stack-navigation{display:flex;justify-content:center;gap:.55rem;margin:clamp(1rem,2vw,1.5rem) auto 0}.project-stack-navigation button{width:2.7rem;height:2.7rem;display:grid;place-items:center;border:1px solid var(--ink);border-radius:50%;background:transparent;color:var(--ink);font-size:1.05rem;line-height:1;cursor:pointer;transition:background .25s var(--ease),color .25s var(--ease),transform .25s var(--ease)}.project-stack-navigation button:hover:not(:disabled){transform:translateY(-2px);background:var(--ink);color:var(--paper)}.project-stack-navigation button:disabled{opacity:.3;cursor:not-allowed}
 .about-badge-media{position:absolute;z-index:3;inset:0;width:100%;height:100%;display:block;object-fit:cover;object-position:center}
-.screen-sound-toggle,.badge-sound-toggle{position:absolute;z-index:7;display:grid;place-items:center;border:1px solid rgba(255,255,255,.82);border-radius:50%;background:rgba(18,18,17,.46);color:#fff;backdrop-filter:blur(4px);font-size:.7rem;line-height:1;cursor:pointer}
-.screen-sound-toggle{right:clamp(.5rem,1vw,.78rem);bottom:clamp(.5rem,1vw,.78rem);width:clamp(1.75rem,2.4vw,2.1rem);height:clamp(1.75rem,2.4vw,2.1rem)}
-.badge-sound-toggle{right:clamp(.5rem,1vw,.72rem);bottom:clamp(.5rem,1vw,.72rem);width:clamp(1.65rem,2.5vw,1.95rem);height:clamp(1.65rem,2.5vw,1.95rem)}
-.screen-sound-toggle:hover,.badge-sound-toggle:hover{background:rgba(18,18,17,.7)}
+.badge-sound-toggle{position:absolute;z-index:7;right:clamp(.5rem,1vw,.72rem);bottom:clamp(.5rem,1vw,.72rem);display:grid;place-items:center;width:clamp(1.65rem,2.5vw,1.95rem);height:clamp(1.65rem,2.5vw,1.95rem);border:1px solid rgba(255,255,255,.82);border-radius:50%;background:rgba(18,18,17,.46);color:#fff;backdrop-filter:blur(4px);font-size:.7rem;line-height:1;cursor:pointer}.badge-sound-toggle:hover{background:rgba(18,18,17,.7)}
 
 /* Website screenshots need a landscape canvas inside the existing card deck. */
 .project-stack{height:clamp(23rem,40vw,31rem)}
