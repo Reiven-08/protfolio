@@ -470,7 +470,17 @@ function Projects({ content }) {
   <div ref={stackRef} className="project-stack" onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd} aria-label="Project card deck">{content.projects.map((project, index) => {
     const forwardDistance = (index - activeIndex + projectCount) % projectCount
     const backwardDistance = (activeIndex - index + projectCount) % projectCount
-    const state = forwardDistance === 0 ? 'is-active' : forwardDistance === 1 ? 'is-back-right' : backwardDistance === 1 ? 'is-back-left' : 'is-hidden'
+    const state = forwardDistance === 0
+      ? 'is-active'
+      : forwardDistance === 1
+        ? 'is-back-right'
+        : backwardDistance === 1
+          ? 'is-back-left'
+          : forwardDistance === 2
+            ? 'is-back-right-deep'
+            : backwardDistance === 2
+              ? 'is-back-left-deep'
+              : 'is-hidden'
     return <article className={`project project-stack-card ${state}`} key={project.id} aria-hidden={forwardDistance !== 0}>
     {project.websiteUrl ? <a href={project.websiteUrl} className="project-link" target="_blank" rel="noreferrer"><ProjectArt project={project} /><div className="project-name"><h3>{project.title}</h3><span>View project <MoveRight /></span></div></a> : <div className="project-link"><ProjectArt project={project} /><div className="project-name"><h3>{project.title}</h3></div></div>}
     </article>
