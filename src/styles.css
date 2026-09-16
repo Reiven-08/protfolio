@@ -265,3 +265,10 @@
 .projects .project-media-frame { position: relative; z-index: 1; }
 .projects .project-media-frame .project-art { border-top-left-radius: 0; border-top-right-radius: 0; }
 .projects .project-stack-card .project-name { position: relative; z-index: 5; visibility: visible; opacity: 1; color: var(--ink); }
+
+/* Preserve the compact display style without collapsing words in project names. */
+.projects .project-stack-card .project-name h3 {
+  letter-spacing: -0.02em;
+  word-spacing: normal;
+  text-transform: none;
+}
