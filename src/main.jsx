@@ -546,7 +546,7 @@ function Projects({ content }) {
               ? 'is-back-left-deep'
               : 'is-hidden'
     return <article className={`project project-stack-card ${state}`} key={project.id} aria-hidden={forwardDistance !== 0}>
-    {project.websiteUrl ? <a href={project.websiteUrl} className="project-link" target="_blank" rel="noreferrer"><ProjectArt project={project} /><div className="project-name"><h3>{project.title}</h3><span>View project <MoveRight /></span></div></a> : <div className="project-link"><ProjectArt project={project} /><div className="project-name"><h3>{project.title}</h3></div></div>}
+    {project.websiteUrl ? <a href={project.websiteUrl} className="project-link" target="_blank" rel="noreferrer"><div className="project-media-frame"><ProjectArt project={project} /></div><div className="project-name"><h3>{project.title}</h3><span>View project <MoveRight /></span></div></a> : <div className="project-link"><div className="project-media-frame"><ProjectArt project={project} /></div><div className="project-name"><h3>{project.title}</h3></div></div>}
     </article>
   })}</div>
   {projectCount > 1 && <div className="project-stack-navigation" aria-label="Project navigation"><button type="button" onClick={() => advance(-1)} aria-label="Previous project">←</button><button type="button" onClick={() => advance(1)} aria-label="Next project">→</button></div>}
