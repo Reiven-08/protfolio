@@ -25,6 +25,10 @@
 
 /* Reference-aligned Home monitor and contact composition. */
 .home-monitor-wrap{width:min(100%,42rem);max-width:none;justify-self:end}
+@media (min-width:1024px){
+  .hero{max-width:none;margin:0;padding-inline:clamp(2.5rem,3vw,3.75rem);grid-template-columns:minmax(0,min(40vw,38rem)) minmax(0,min(45vw,40rem));column-gap:clamp(2.5rem,4vw,5rem);justify-content:center}
+  .hero .home-monitor-wrap{justify-self:start}
+}
 .home-monitor{padding:clamp(1.45rem,2.45vw,2.25rem) clamp(.72rem,1.25vw,1.18rem) clamp(1.1rem,1.9vw,1.7rem);border:0;border-radius:clamp(1.3rem,2.35vw,2.15rem);background:linear-gradient(145deg,#23252a,#101115 74%);box-shadow:0 1.25rem 2.8rem rgba(20,20,19,.16),inset 0 1px rgba(255,255,255,.11)}
 .monitor-brand{left:clamp(1.2rem,2vw,1.75rem);top:clamp(.67rem,1.15vw,.95rem);font-size:clamp(.43rem,.56vw,.56rem);font-weight:600;letter-spacing:.18em;color:#f7f5ef}
 .monitor-brand::before{content:"";display:inline-block;width:.45em;height:.45em;margin:0 .65em .1em 0;border-radius:50%;background:#e1ac35}
